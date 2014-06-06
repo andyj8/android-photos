@@ -21,7 +21,7 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
     private Handler mResponseHandler;
     private Listener<Token> mListener;
 
-    private Map<Token, String> requestMap =
+    private Map<Token, String> imageTokenToUrlMap =
             Collections.synchronizedMap(new HashMap<Token, String>());
 
     public ThumbnailDownloader(Handler responseHandler) {
@@ -38,13 +38,13 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
     }
 
     public void queueThumbnail(Token token, String url) {
-        requestMap.put(token, url);
+        imageTokenToUrlMap.put(token, url);
         mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
     }
 
     public void clearQueue() {
         mHandler.removeMessages(MESSAGE_DOWNLOAD);
-        requestMap.clear();
+        imageTokenToUrlMap.clear();
     }
 
     @Override
@@ -55,7 +55,7 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
                 if (msg.what == MESSAGE_DOWNLOAD) {
                     @SuppressWarnings("unchecked")
                     Token token = (Token) msg.obj;
-                    Log.i(TAG, "Got a request for url: " + requestMap.get(token));
+                    Log.i(TAG, "Got a request for url: " + imageTokenToUrlMap.get(token));
                     handleRequest(token);
                 }
             }
@@ -64,7 +64,7 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
 
     private void handleRequest(final Token token) {
         try {
-            final String url = requestMap.get(token);
+            final String url = imageTokenToUrlMap.get(token);
             if (url == null) {
                 return;
             }
@@ -76,10 +76,10 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
             mResponseHandler.post(new Runnable() {
                 @Override
                 public void run() {
-                    if (requestMap.get(token) != url) {
+                    if (imageTokenToUrlMap.get(token) != url) {
                         return;
                     }
-                    requestMap.remove(token);
+                    imageTokenToUrlMap.remove(token);
                     mListener.onThumbnailDownloaded(token, bitmap);
                 }
             });
