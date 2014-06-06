@@ -39,7 +39,6 @@ public class PhotoGalleryFragment extends Fragment {
                 }
             }
         });
-
         mThumbnailThread.start();
         mThumbnailThread.getLooper();
     }
@@ -81,7 +80,6 @@ public class PhotoGalleryFragment extends Fragment {
         if (getActivity() == null || mGridView == null) {
             return;
         }
-
         if (mItems != null) {
             mGridView.setAdapter(new GalleryItemAdapter(mItems));
         } else {
