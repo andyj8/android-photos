@@ -1,7 +1,9 @@
 package com.andy.photogallery;
 
+import android.graphics.Bitmap;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -31,7 +33,16 @@ public class PhotoGalleryFragment extends Fragment {
 
         new FetchItemsTask().execute();
 
-        mThumbnailThread = new ThumbnailDownloader<ImageView>(TAG);
+        mThumbnailThread = new ThumbnailDownloader<ImageView>(new Handler());
+        mThumbnailThread.setListener(new ThumbnailDownloader.Listener<ImageView>() {
+            @Override
+            public void onThumbnailDownloaded(ImageView imageView, Bitmap thumbnail) {
+                if (isVisible()) {
+                    imageView.setImageBitmap(thumbnail);
+                }
+            }
+        });
+
         mThumbnailThread.start();
         mThumbnailThread.getLooper();
         Log.i(TAG, "STARTED");
@@ -42,6 +53,12 @@ public class PhotoGalleryFragment extends Fragment {
         super.onDestroy();
         mThumbnailThread.quit();
         Log.i(TAG, "DESTROYED");
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mThumbnailThread.clearQueue();
     }
 
     @Override
