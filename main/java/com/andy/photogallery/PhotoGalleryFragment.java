@@ -5,7 +5,6 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,8 +18,6 @@ import com.andy.photogallery.service.ThumbnailDownloader;
 import java.util.ArrayList;
 
 public class PhotoGalleryFragment extends Fragment {
-
-    private static final String TAG = "PhotoGalleryFragment";
 
     private GridView mGridView;
     private ArrayList<GalleryItem> mItems;
@@ -45,14 +42,12 @@ public class PhotoGalleryFragment extends Fragment {
 
         mThumbnailThread.start();
         mThumbnailThread.getLooper();
-        Log.i(TAG, "STARTED");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mThumbnailThread.quit();
-        Log.i(TAG, "DESTROYED");
     }
 
     @Override
