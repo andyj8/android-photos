@@ -6,10 +6,10 @@ public class GalleryItem {
     private String url;
     private String caption;
 
-    public GalleryItem(String id, String url, String caption) {
+    public GalleryItem(String id, String caption, String url) {
         this.id = id;
-        this.url = url;
         this.caption = caption;
+        this.url = url;
     }
 
     public String getId() {
