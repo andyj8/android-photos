@@ -29,24 +29,6 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
         mResponseHandler = responseHandler;
     }
 
-    public interface Listener<Token> {
-        void onThumbnailDownloaded(Token token, Bitmap thumbnail);
-    }
-
-    public void setListener(Listener<Token> listener) {
-        mListener = listener;
-    }
-
-    public void queueThumbnail(Token token, String url) {
-        imageTokenToUrlMap.put(token, url);
-        mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
-    }
-
-    public void clearQueue() {
-        mHandler.removeMessages(MESSAGE_DOWNLOAD);
-        imageTokenToUrlMap.clear();
-    }
-
     @Override
     protected void onLooperPrepared() {
         mHandler = new Handler() {
@@ -60,6 +42,11 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
                 }
             }
         };
+    }
+
+    public void queueThumbnail(Token token, String url) {
+        imageTokenToUrlMap.put(token, url);
+        mHandler.obtainMessage(MESSAGE_DOWNLOAD, token).sendToTarget();
     }
 
     private void handleRequest(final Token token) {
@@ -88,6 +75,19 @@ public class ThumbnailDownloader<Token> extends HandlerThread {
             Log.e(TAG, "Error downloading image", e);
             e.printStackTrace();
         }
+    }
+
+    public interface Listener<Token> {
+        void onThumbnailDownloaded(Token token, Bitmap thumbnail);
+    }
+
+    public void setListener(Listener<Token> listener) {
+        mListener = listener;
+    }
+
+    public void clearQueue() {
+        mHandler.removeMessages(MESSAGE_DOWNLOAD);
+        imageTokenToUrlMap.clear();
     }
 
 }
