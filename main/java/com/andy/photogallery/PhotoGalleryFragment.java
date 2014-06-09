@@ -5,6 +5,7 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -13,20 +14,26 @@ import android.widget.GridView;
 import android.widget.ImageView;
 import com.andy.photogallery.model.GalleryItem;
 import com.andy.photogallery.model.GalleryItemRepository;
+import com.andy.photogallery.service.BitmapCache;
 import com.andy.photogallery.service.ThumbnailDownloader;
 
 import java.util.ArrayList;
 
 public class PhotoGalleryFragment extends Fragment {
 
+    private static final String TAG = "fragment";
+
     private GridView mGridView;
     private ArrayList<GalleryItem> mItems;
     private ThumbnailDownloader<ImageView> mThumbnailThread;
+    private BitmapCache mCache;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setRetainInstance(true);
+
+        mCache = BitmapCache.getInstance();
 
         new FetchItemsTask().execute();
 
@@ -36,6 +43,8 @@ public class PhotoGalleryFragment extends Fragment {
             public void onThumbnailDownloaded(ImageView imageView, Bitmap thumbnail) {
                 if (isVisible()) {
                     imageView.setImageBitmap(thumbnail);
+                    Log.i(TAG, "Tag: " + imageView.getTag());
+                    mCache.add(imageView.getTag().toString(), thumbnail);
                 }
             }
         });
@@ -95,13 +104,23 @@ public class PhotoGalleryFragment extends Fragment {
 
         @Override
         public View getView(int position, View view, ViewGroup parent) {
+
+            Log.i(TAG, "getView() pos: " + position);
+
             if (view == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 view = inflater.inflate(R.layout.gallery_item, parent, false);
             }
 
             ImageView imageView = (ImageView) view.findViewById(R.id.gallery_item_image);
+
+            if (mCache.contains(Integer.toString(position))) {
+                imageView.setImageBitmap(mCache.get(Integer.toString(position)));
+                return view;
+            }
+
             imageView.setImageResource(R.drawable.kermit);
+            imageView.setTag(position);
 
             GalleryItem item = getItem(position);
             mThumbnailThread.queueThumbnail(imageView, item.getUrl());
