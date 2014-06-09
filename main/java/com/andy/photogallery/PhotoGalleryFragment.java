@@ -107,6 +107,8 @@ public class PhotoGalleryFragment extends Fragment {
 
             Log.i(TAG, "getView() pos: " + position);
 
+            // because ur using a recycled view that is pending a setImageBitmap() in onThumbnailDownloaded()
+
             if (view == null) {
                 LayoutInflater inflater = getActivity().getLayoutInflater();
                 view = inflater.inflate(R.layout.gallery_item, parent, false);
